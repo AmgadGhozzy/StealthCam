@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Camera -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Audio -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <!-- Foreground Service — required for background recording -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Android 14+ requires explicit foreground service type permissions -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+
+    <!-- Keep CPU alive while recording with screen off -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!--
+        Critical for screen-off AccessibilityService on OEM devices (MIUI, OneUI, EMUI).
+        Without this, the system suspends the service after the screen turns off.
+        The app must request exemption via Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS.
+    -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <!-- Storage Access Framework — no WRITE_EXTERNAL_STORAGE needed on API 30+ -->
+
+    <!-- Notifications for foreground service (Android 13+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Vibration feedback on recording start/stop -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!--
+        Overlay permission for the red-dot recording indicator.
+        On API 23+ the user must grant this via Settings → Apps → Display over other apps.
+        The app checks Settings.canDrawOverlays() before starting the overlay service.
+    -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- Hardware features — declared as optional so app installs on all devices -->
+    <uses-feature android:name="android.hardware.camera2" android:required="true" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+
+    <application
+        android:name=".StealthCamApp"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.StealthCam">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.StealthCam"
+            android:showWhenLocked="false"
+            android:turnScreenOn="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Main recording foreground service -->
+        <service
+            android:name=".data.recording.RecordingService"
+            android:exported="false"
+            android:foregroundServiceType="camera|microphone" />
+
+        <!-- Overlay indicator service (red dot while recording) -->
+        <service
+            android:name=".data.recording.RecordingOverlayService"
+            android:exported="false" />
+
+        <!--
+            Volume long-press trigger via AccessibilityService.
+            The user enables this once via Settings → Accessibility → StealthCam.
+            flagRequestFilterKeyEvents gives us onKeyEvent() globally, even screen-off.
+        -->
+        <service
+            android:name=".core.trigger.VolumeKeyAccessibilityService"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+    </application>
+
+</manifest>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Configuration for VolumeKeyAccessibilityService.
+
+    CRITICAL flags for screen-off volume key interception:
+    — canRequestFilterKeyEvents="true" : grants the service permission to filter key events
+    — flagRequestFilterKeyEvents in accessibilityFlags : activates key filtering at runtime
+
+    Both must be present. The service does NOT reassign serviceInfo programmatically
+    (doing so corrupts flags on OEM ROMs and breaks screen-off interception).
+
+    accessibilityEventTypes="typeAllMask" and packageNames="@null" ensure the service
+    stays connected across all packages and screen states.
+-->
+<accessibility-service
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeAllMask"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagRequestFilterKeyEvents|flagIncludeNotImportantViews"
+    android:canRequestFilterKeyEvents="true"
+    android:description="@string/accessibility_service_description"
+    android:notificationTimeout="100"
+    android:packageNames="@null"
+    android:summary="@string/accessibility_service_summary" />

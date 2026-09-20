@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">StealthCam</string>
+    <string name="accessibility_service_description">StealthCam uses this service to detect volume button long-presses and start or stop background video recording — even when the screen is off.</string>
+    <string name="accessibility_service_summary">Enables volume button recording trigger</string>
+</resources>
